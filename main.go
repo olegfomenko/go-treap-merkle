@@ -13,55 +13,33 @@ type Node struct {
 	Left, Right *Node
 }
 
-var Root *Node
-
-func Split(root *Node, key []byte) (*Node, *Node) {
-	if root == nil {
-		return nil, nil
-	}
-
-	if bytes.Compare(root.Hash, key) < 0 {
-		t1, t2 := Split(root.Right, key)
-		root.Right = t1
-		updateNode(root)
-		return root, t2
-	}
-
-	t1, t2 := Split(root.Left, key)
-	root.Left = t2
-	updateNode(root)
-	return t1, root
+type ITreap interface {
+	Remove(key []byte)
+	Insert(key []byte, priority uint64)
+	MerklePath(key []byte) [][]byte
+	MerkleRoot() []byte
 }
 
-func Merge(t1, t2 *Node) *Node {
-	if t1 == nil {
-		return t2
-	}
-
-	if t2 == nil {
-		return t1
-	}
-
-	if t1.Priority > t2.Priority {
-		t1.Right = Merge(t1.Right, t2)
-		updateNode(t1)
-		return t1
-	}
-
-	t2.Left = Merge(t1, t2.Left)
-	updateNode(t2)
-	return t2
+type Treap struct {
+	Root *Node
 }
 
-func Remove(key []byte) {
-	if Root == nil {
+// Implements ITreap
+var _ ITreap = &Treap{}
+
+func New() ITreap {
+	return &Treap{}
+}
+
+func (t *Treap) Remove(key []byte) {
+	if t.Root == nil {
 		return
 	}
 
-	t1, t2 := Split(Root, key)
+	t1, t2 := split(t.Root, key)
 
 	if bytes.Compare(t2.Hash, key) == 0 {
-		Root = Merge(t1, t2.Right)
+		t.Root = merge(t1, t2.Right)
 	}
 
 	node := t2
@@ -75,27 +53,27 @@ func Remove(key []byte) {
 		node = node.Left
 	}
 
-	Root = Merge(t1, t2)
+	t.Root = merge(t1, t2)
 }
 
-func Insert(key []byte, priority uint64) {
+func (t *Treap) Insert(key []byte, priority uint64) {
 	node := &Node{
 		Hash:       key,
 		MerkleHash: key,
 		Priority:   priority,
 	}
 
-	if Root == nil {
-		Root = node
+	if t.Root == nil {
+		t.Root = node
 		return
 	}
 
-	t1, t2 := Split(Root, key)
-	Root = Merge(Merge(t1, node), t2)
+	t1, t2 := split(t.Root, key)
+	t.Root = merge(merge(t1, node), t2)
 }
 
-func MerklePath(key []byte) [][]byte {
-	node := Root
+func (t *Treap) MerklePath(key []byte) [][]byte {
+	node := t.Root
 	result := make([][]byte, 0, 64)
 
 	for node != nil {
@@ -121,6 +99,48 @@ func MerklePath(key []byte) [][]byte {
 	}
 
 	return nil
+}
+
+func (t *Treap) MerkleRoot() []byte {
+	return t.Root.MerkleHash
+}
+
+func split(root *Node, key []byte) (*Node, *Node) {
+	if root == nil {
+		return nil, nil
+	}
+
+	if bytes.Compare(root.Hash, key) < 0 {
+		t1, t2 := split(root.Right, key)
+		root.Right = t1
+		updateNode(root)
+		return root, t2
+	}
+
+	t1, t2 := split(root.Left, key)
+	root.Left = t2
+	updateNode(root)
+	return t1, root
+}
+
+func merge(t1, t2 *Node) *Node {
+	if t1 == nil {
+		return t2
+	}
+
+	if t2 == nil {
+		return t1
+	}
+
+	if t1.Priority > t2.Priority {
+		t1.Right = merge(t1.Right, t2)
+		updateNode(t1)
+		return t1
+	}
+
+	t2.Left = merge(t1, t2.Left)
+	updateNode(t2)
+	return t2
 }
 
 func updateNode(node *Node) {

@@ -10,15 +10,17 @@ import (
 )
 
 func TestTreap(t *testing.T) {
-	Insert(crypto.Keccak256([]byte{1}), rand.Uint64())
-	Insert(crypto.Keccak256([]byte{2}), rand.Uint64())
-	Insert(crypto.Keccak256([]byte{3}), rand.Uint64())
-	Insert(crypto.Keccak256([]byte{4}), rand.Uint64())
-	Insert(crypto.Keccak256([]byte{5}), rand.Uint64())
+	tree := New()
 
-	fmt.Println("Root: ", hexutil.Encode(Root.MerkleHash))
+	tree.Insert(crypto.Keccak256([]byte{1}), rand.Uint64())
+	tree.Insert(crypto.Keccak256([]byte{2}), rand.Uint64())
+	tree.Insert(crypto.Keccak256([]byte{3}), rand.Uint64())
+	tree.Insert(crypto.Keccak256([]byte{4}), rand.Uint64())
+	tree.Insert(crypto.Keccak256([]byte{5}), rand.Uint64())
 
-	path := MerklePath(crypto.Keccak256([]byte{3}))
+	fmt.Println("Root: ", hexutil.Encode(tree.MerkleRoot()))
+
+	path := tree.MerklePath(crypto.Keccak256([]byte{3}))
 	check := crypto.Keccak256([]byte{3})
 
 	fmt.Println("Path: ")
@@ -32,5 +34,5 @@ func TestTreap(t *testing.T) {
 		}
 	}
 
-	fmt.Println("Check:", hexutil.Encode(check), "should be equal to root:", hexutil.Encode(Root.MerkleHash))
+	fmt.Println("Check:", hexutil.Encode(check), "should be equal to root:", hexutil.Encode(tree.MerkleRoot()))
 }
