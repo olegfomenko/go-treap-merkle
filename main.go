@@ -127,6 +127,7 @@ func updateNode(node *Node) {
 	childrenHash := hashNodes(node.Left, node.Right)
 	if childrenHash == nil {
 		node.MerkleHash = node.Hash
+		return
 	}
 
 	node.MerkleHash = hash(childrenHash, node.Hash)
