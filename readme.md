@@ -1,7 +1,9 @@
 # Treap-based dynamic Merkle tree
 
-Proof of concept for dynamic Merkle tree. 
-Treap as primary data structure used ao achieve logarithmic inserting/removing.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Proof of concept for dynamic Merkle tree.
+Treap as primary data structure used to achieve logarithmic inserting/removing.
 
 ## Usage
 ```go
