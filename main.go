@@ -40,6 +40,7 @@ func (t *Treap) Remove(key []byte) {
 
 	if bytes.Compare(t2.Hash, key) == 0 {
 		t.Root = merge(t1, t2.Right)
+		return
 	}
 
 	node := t2
